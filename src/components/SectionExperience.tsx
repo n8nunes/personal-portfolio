@@ -7,7 +7,6 @@ const timeline = [
     org: "Monash University",
     date: "Expected 2027",
     status: "in-progress",
-    desc: "Specialising in cybersecurity with a focus on cloud security and GRC.",
   },
   {
     role: "AWS Solutions Architect Associate (SAA-C03)",
@@ -38,7 +37,7 @@ const timeline = [
     org: "Ensign Laboratories",
     date: "2022 — 2026",
     status: "completed",
-    desc: "Managed risk-minimization and quality control under strict regulatory compliance frameworks and Standard Operating Procedures (SOPs).",
+    desc: "Managed risk-minimisation and quality control under strict regulatory compliance frameworks and Standard Operating Procedures (SOPs).",
   },
 ];
 

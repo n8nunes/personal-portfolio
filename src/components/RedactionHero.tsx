@@ -92,7 +92,7 @@ export default function RedactionHero() {
             Making risk <br className="hidden md:block" />legible.
           </h1>
           <p className="font-sans text-lg md:text-xl text-text-muted max-w-2xl leading-relaxed mb-12">
-            I build tools that map controls across frameworks like NIST CSF, ISO 27001 and Essential Eight, and I write about what I learn along the way. Currently completing a cybersecurity-focused software engineering degree at Monash, with a background in regulated manufacturing.
+            I build tools that map controls across frameworks like NIST CSF, ISO 27001 and Essential Eight, and I write about what I learn along the way. Currently completing a software engineering degree at Monash, with a professional background in regulated manufacturing.
           </p>
 
           <div className="flex flex-wrap items-center gap-6">

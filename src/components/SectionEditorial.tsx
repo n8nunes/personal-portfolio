@@ -5,7 +5,7 @@ export default function SectionEditorial() {
     <section className="py-24 md:py-32 lg:py-48 px-6 md:px-12 lg:px-24 bg-ink text-text-dark relative border-b border-border-dark">
       <div className="max-w-[1200px] mx-auto">
         <h2 className="font-editorial text-4xl md:text-5xl lg:text-7xl leading-[1.1] tracking-tight mb-12 max-w-4xl">
-          Most good compliance work is invisible until something breaks.
+          Most compliance work is invisible until something breaks.
         </h2>
         <div className="flex flex-col md:flex-row gap-12 lg:gap-24">
           <p className="font-sans text-lg md:text-xl text-text-dark/60 leading-relaxed max-w-xl">
