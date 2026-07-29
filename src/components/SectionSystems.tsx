@@ -50,7 +50,7 @@ export default function SectionSystems() {
               Systems
             </div>
             <h2 className="font-editorial text-4xl md:text-6xl text-text-dark leading-tight max-w-2xl">
-              Projects, tools, and things that run.
+              Projects and tools.
             </h2>
           </div>
         </div>
