@@ -4,6 +4,7 @@ import React from "react";
 import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const projects = [
   {
@@ -45,20 +46,33 @@ export default function SectionSystems() {
     <section id="systems" className="py-24 md:py-32 px-6 md:px-12 lg:px-24 bg-ink text-text-dark relative border-b border-border-dark">
       <div className="max-w-[1200px] mx-auto">
         <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
             <div className="inline-block font-mono text-sm tracking-wider uppercase text-accent border-b border-accent pb-1 mb-4">
               Systems
             </div>
             <h2 className="font-editorial text-4xl md:text-6xl text-text-dark leading-tight max-w-2xl">
               Projects and tools.
             </h2>
-          </div>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
           {projects.map((project, idx) => (
-            <div
+            <motion.div
               key={project.id}
+              initial={{ opacity: 0, y: -40, filter: "blur(4px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ 
+                duration: 0.8, 
+                delay: idx * 0.15, 
+                ease: "easeOut"
+              }}
               className={clsx(
                 "group flex flex-col gap-6",
                 idx % 2 !== 0 ? "lg:mt-32" : "" // Asymmetrical layout
@@ -102,7 +116,7 @@ export default function SectionSystems() {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
