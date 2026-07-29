@@ -4,15 +4,16 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMenu } from "@/context/MenuContext";
 import clsx from "clsx";
+import Image from "next/image";
 
 const menuItems = [
-  { id: "01", label: "Home", desc: "Access granted", href: "#home" },
-  { id: "02", label: "About", desc: "Who's behind the badge", href: "#about" },
-  { id: "03", label: "Systems", desc: "Projects, tools, and things that run", href: "#systems" },
-  { id: "04", label: "Experience", desc: "Roles, certifications, and record", href: "#experience" },
-  { id: "05", label: "Writing", desc: "Notes on cybersecurity and markets", href: "#writing" },
-  { id: "06", label: "What's Next", desc: "Where this is heading", href: "#whats-next" },
-  { id: "07", label: "Contact", desc: "Get in touch", href: "#contact" },
+  { id: "01", label: "Home", desc: "Main access", href: "#home", image: "home" },
+  { id: "02", label: "About", desc: "Who is Nathan Nunes", href: "#about", image: "about" },
+  { id: "03", label: "Systems", desc: "Projects and tools", href: "#systems", image: "systems" },
+  { id: "04", label: "Experience", desc: "Roles, certifications, and record", href: "#experience", image: "experience" },
+  { id: "05", label: "Writing", desc: "Notes on cybersecurity and markets", href: "#writing", image: "writing" },
+  { id: "06", label: "What's Next", desc: "Where this is heading", href: "#whats-next", image: "whats-next" },
+  { id: "07", label: "Contact", desc: "Get in touch", href: "#contact", image: "contact" },
 ];
 
 export default function FullScreenMenu() {
@@ -53,13 +54,13 @@ export default function FullScreenMenu() {
           <div className="w-full md:w-1/2 p-6 md:p-12 lg:p-24 flex flex-col justify-center overflow-y-auto no-scrollbar">
             <nav className="flex flex-col gap-4">
               {menuItems.map((item, i) => (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className="flex items-center gap-6 group cursor-pointer"
                   onMouseEnter={() => setActiveItem(item)}
                   onClick={() => handleLinkClick(item.href)}
                 >
-                  <motion.span 
+                  <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + i * 0.05 }}
@@ -76,7 +77,7 @@ export default function FullScreenMenu() {
                     transition={{ delay: 0.2 + i * 0.05 }}
                     className="relative overflow-hidden"
                   >
-                    <span 
+                    <span
                       className={clsx(
                         "font-editorial text-4xl md:text-5xl lg:text-7xl transition-colors block",
                         activeItem.id === item.id ? "text-text-dark" : "text-text-dark/60 group-hover:text-text-dark"
@@ -108,16 +109,18 @@ export default function FullScreenMenu() {
                 </div>
                 <h3 className="font-editorial text-4xl text-text-dark">{activeItem.label}</h3>
                 <p className="font-mono text-text-dark/60 text-sm">{activeItem.desc}</p>
-                
-                {/* Abstract visualization placeholder for preview */}
-                <div className="mt-8 relative w-full h-64 border border-border-main rounded-content-md overflow-hidden bg-ink/50 flex items-center justify-center group">
-                   {/* Scanline effect */}
-                   <div className="absolute top-0 left-0 w-full h-1 bg-accent/20 blur-sm animate-[scan_3s_ease-in-out_infinite]" />
-                   <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--color-text-subtle)_1px,_transparent_1px)] bg-[size:24px_24px]" />
-                   
-                   <span className="font-mono text-text-dark/40 text-xs tracking-widest relative z-10 group-hover:text-accent transition-colors">
-                     [ DATA_STREAM_ACTIVE ]
-                   </span>
+
+                <div className="mt-8 relative w-full h-64 border border-border-main rounded-content-md overflow-hidden bg-inner flex items-center justify-center group">
+                  {/* 
+                     Image tag ready for when you drop the images in the public/menu folder.
+                     For example, public/menu/home.jpg
+                   */}
+                  {<Image
+                    src={`/menu/${activeItem.image}.png`}
+                    alt={activeItem.label}
+                    fill
+                    className="object-cover opacity-50 group-hover:opacity-80 transition-opacity duration-500"
+                  />}
                 </div>
               </motion.div>
             </AnimatePresence>
