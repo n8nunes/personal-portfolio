@@ -28,7 +28,7 @@ const timeline = [
   },
   {
     role: "Coursera CompTIA A+",
-    org: "CompTIA",
+    org: "Coursera",
     date: "Completed",
     status: "completed",
   },
