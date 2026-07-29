@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
+import { motion, useMotionValue, useSpring, useMotionTemplate, animate } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import clsx from "clsx";
 
@@ -54,8 +54,20 @@ export default function RedactionHero() {
       if (!hasInteracted) setHasInteracted(true);
     }
   };
-  const maskSize = isHovered || hasInteracted ? '350px' : '0px';
-  const maskImage = useMotionTemplate`radial-gradient(circle ${maskSize} at ${smoothX}px ${smoothY}px, transparent 0%, black 100%)`;
+
+  const maskRadius = useMotionValue(0);
+
+  useEffect(() => {
+    if (isFullyRevealed) {
+      animate(maskRadius, 3000, { duration: 1.5, ease: "easeInOut" });
+    } else if (isHovered || hasInteracted) {
+      animate(maskRadius, 350, { type: "spring", damping: 25, stiffness: 120, mass: 0.5 });
+    } else {
+      animate(maskRadius, 0, { type: "spring", damping: 25, stiffness: 120, mass: 0.5 });
+    }
+  }, [isHovered, hasInteracted, isFullyRevealed, maskRadius]);
+
+  const maskImage = useMotionTemplate`radial-gradient(circle ${maskRadius}px at ${smoothX}px ${smoothY}px, transparent 0%, black 100%)`;
 
   return (
     <section
@@ -117,10 +129,6 @@ export default function RedactionHero() {
           WebkitMaskImage: maskImage,
           maskImage: maskImage,
         }}
-        animate={{
-          opacity: isFullyRevealed ? 0 : 1
-        }}
-        transition={{ opacity: { duration: 2, ease: "easeInOut" }, type: "spring", bounce: 0, duration: 0.8 }}
       >
         {/* Redaction Bar Texture on top of the dark layer */}
         <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,#B5643A_2px,#B5643A_4px)]" />
