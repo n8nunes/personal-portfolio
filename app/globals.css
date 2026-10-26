@@ -130,8 +130,25 @@
   transform: none;
 }
 
-/* Section deck: on large screens one section fills the viewport and the stack
-   is translated a panel at a time. Below that, the same markup scrolls. */
+/* The lens copy keeps the deck's tunnel transition so the magnified view turns
+   with the page instead of snapping to the next panel ahead of it. */
+.lens-copy .tunnel-panel {
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 460ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 460ms cubic-bezier(0.22, 0.61, 0.36, 1) !important;
+}
+
+.lens-copy .deck-panel[data-deck-state="active"] .tunnel-panel {
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 680ms cubic-bezier(0.22, 0.61, 0.36, 1) 90ms,
+    filter 680ms cubic-bezier(0.22, 0.61, 0.36, 1) 90ms !important;
+}
+
+/* Section deck: on large screens every section fills the viewport and the
+   panels overlap, handing over with the tunnel transition below. Under the
+   breakpoint the same markup is a normal scrolling document. */
 html[data-deck="true"] body {
   overflow: hidden;
 }
@@ -141,19 +158,68 @@ html[data-deck="true"] .deck-viewport {
   overflow: hidden;
 }
 
+/* In deck mode every panel occupies the same viewport. The active one sits on
+   top; the rest wait behind it at depth. */
+html[data-deck="true"] .deck-track {
+  position: relative;
+  height: var(--deck-height, 100svh);
+}
+
 html[data-deck="true"] .deck-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   height: var(--deck-height, 100svh);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
 }
 
+html[data-deck="true"] .deck-panel[data-deck-state="active"] {
+  z-index: 2;
+}
+
 html[data-deck="true"] .deck-panel::-webkit-scrollbar {
   width: 0;
 }
 
-/* In deck mode the panel itself carries the motion, so section content stays
-   fully opaque while it slides; the fade-in is only for scrolling documents. */
+/* Deck paging behaves like a tunnel: the section being left rushes toward the
+   viewer and fades, while the next one grows out of the page behind it. Only
+   deck mode uses this; normal scrolling keeps its own reveal. */
+html[data-deck="true"] .tunnel-panel {
+  transform-origin: 50% 45%;
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 460ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 460ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+html[data-deck="true"] .deck-panel[data-deck-state="active"] .tunnel-panel {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 680ms cubic-bezier(0.22, 0.61, 0.36, 1) 90ms,
+    filter 680ms cubic-bezier(0.22, 0.61, 0.36, 1) 90ms;
+}
+
+html[data-deck="true"] .deck-panel[data-deck-state="before"] .tunnel-panel {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translate3d(0, -3%, 0) scale(1.7);
+}
+
+html[data-deck="true"] .deck-panel[data-deck-state="after"] .tunnel-panel {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translate3d(0, 6%, 0) scale(0.6);
+}
+
+/* In deck mode the panel itself carries the motion, so the arriving section
+   starts fully opaque; the fade-in is only for scrolling documents. */
 html[data-deck="true"] .reveal {
   opacity: 1;
   transform: none;

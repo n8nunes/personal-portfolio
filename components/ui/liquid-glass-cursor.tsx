@@ -153,7 +153,15 @@ export default function LiquidGlassCursor({
       const clonePanels = clone.querySelectorAll<HTMLElement>(".deck-panel");
       realPanels.forEach((panel, index) => {
         const copy = clonePanels[index];
-        if (copy) copy.scrollTop = panel.scrollTop;
+        if (!copy) return;
+        copy.scrollTop = panel.scrollTop;
+        // Mirror the tunnel state so the magnified view scales and fades with
+        // the page instead of showing a flat snapshot.
+        if (panel.dataset.deckState) {
+          copy.dataset.deckState = panel.dataset.deckState;
+        } else {
+          delete copy.dataset.deckState;
+        }
       });
 
       const realCards = content.querySelectorAll<HTMLElement>("article");
@@ -241,6 +249,14 @@ export default function LiquidGlassCursor({
           attributes: true,
           attributeFilter: ["style"],
         });
+        content
+          .querySelectorAll<HTMLElement>(".deck-panel")
+          .forEach((panel) => {
+            observer?.observe(panel, {
+              attributes: true,
+              attributeFilter: ["data-deck-state"],
+            });
+          });
       }
 
       content.querySelectorAll<HTMLElement>("article").forEach((card) => {

@@ -2,7 +2,7 @@
 
 A single-page portfolio for Nathan Nunes, built with Next.js App Router, TypeScript, Tailwind CSS, framer-motion and two Google fonts loaded through `next/font`.
 
-The page is one route (`/`). On large screens it behaves as a full-screen section deck: each section fills the viewport and wheel, swipe, keyboard or nav links move the deck while the sky and clouds rise. Below the deck breakpoint, and for reduced-motion visitors, the same markup is a normal scrolling page.
+The page is one route (`/`). On large screens it behaves as a full-screen section deck: each section fills the viewport and wheel, swipe, keyboard or nav links page between them. The outgoing section rushes toward the viewer and phases out while the next one pops through behind it, and the sky and clouds rise with each step. Below the deck breakpoint, and for reduced-motion visitors, the same markup is a normal scrolling page.
 
 The hero is type over the shared sunset gradient, with the portrait set beside the copy on larger screens. A liquid-glass lens follows the pointer across the whole page, including the nav, the deck and the contact panel. All copy lives in [`lib/content.ts`](lib/content.ts) so it can be audited against the build handover in one place.
 
@@ -12,7 +12,7 @@ The hero is type over the shared sunset gradient, with the portrait set beside t
 - React `18.3.1`
 - TypeScript `5.6.3`
 - Tailwind CSS `3.4.17`
-- framer-motion `11.18.2` (deck spring, sky and cloud motion, card tilt, lens)
+- framer-motion `11.18.2` (sky and cloud motion, card tilt, lens; the deck tunnel itself is CSS)
 - lucide-react `0.468.0` (arrow icon on project links)
 - sharp `0.33.5` (build-time image optimisation)
 - Fraunces (display) and IBM Plex Sans (body), via `next/font/google`
@@ -39,8 +39,10 @@ npm run start
 `components/DeckProvider.tsx` owns the deck:
 
 - Deck mode turns on only when the viewport is at least `1024 × 700` and `prefers-reduced-motion` is not set. Everything else keeps the normal document scroll.
-- `components/SectionDeck.tsx` wraps the four sections in `[data-deck-panel]` divs and translates the track by one panel height with a spring (stiffness 118, damping 24, mass 0.9).
-- Panels are `100svh` with their own `overflow-y`. A wheel or key only advances the deck once the active panel is at its scroll edge, so a section that is taller than the viewport scrolls normally first, then hands over. Wheel intent accumulates 28 px and paging is locked for 620 ms so a trackpad flick cannot skip sections.
+- `components/SectionDeck.tsx` wraps the four sections in `[data-deck-panel]` divs. In deck mode the panels overlap at `[0, height]` instead of sitting in a moving track; the active panel sits on top (`z-index: 2`). Each panel is wrapped in `.tunnel-panel` and gets `data-deck-state="active"`, `before` or `after`.
+- The tunnel is pure CSS. The section being left (`before`) travels to `translateY(-3%) scale(1.7)` with `opacity: 0` and a 4 px blur, so it rushes past the viewer and phases out. The section waiting behind (`after`) rests at `translateY(6%) scale(0.6)` with `opacity: 0` and a 5 px blur, then pops through to `scale(1)`, `opacity: 1` and no blur when it becomes active. The origin is `50% 45%`, slightly above centre, so the zoom reads as depth rather than a slide.
+- The transform eases over 900 ms with `cubic-bezier(0.16, 1, 0.3, 1)`. Leaving opacity and filter finish in 460 ms; arriving opacity and filter take 680 ms with a 90 ms delay, so the incoming section resolves just after the outgoing one has cleared.
+- Panels are `var(--deck-height, 100svh)` with their own `overflow-y`. A wheel or key only advances the deck once the active panel is at its scroll edge, so a section that is taller than the viewport scrolls normally first, then hands over. Wheel intent accumulates 28 px and paging is locked for 620 ms so a trackpad flick cannot skip sections.
 - Supported input: wheel, touch swipe (60 px threshold), `ArrowDown`/`ArrowUp`, `PageDown`/`PageUp`, `Space`/`Shift+Space`, `Home`/`End`, and any `href="#section"` link.
 - Nav links call `history.replaceState` and move the deck instead of jumping the document. A `#hash` on first load opens the matching panel; in normal-scroll mode the section is focused below the fixed header.
 - Focus follows the deck: tabbing into a panel that is off screen moves the deck to that panel. Content is never `inert` or hidden from assistive technology.
@@ -62,10 +64,10 @@ The sunset runs behind the whole page rather than only the hero.
 app/
   layout.tsx          Fonts, metadata, deck provider, sky, cloud field, whole-page lens, nav and skip link
   page.tsx            The single page and all section markup
-  globals.css         Tailwind directives, cloud cards, deck panels, reveals, lens copy, reduced motion
+  globals.css         Tailwind directives, cloud cards, deck panels, tunnel transforms, reveals, lens copy, reduced motion
 components/
   DeckProvider.tsx    Deck state, page progress, wheel/touch/key/nav/focus input
-  SectionDeck.tsx     Spring-translated stack of full-viewport panels
+  SectionDeck.tsx     Overlapping full-viewport panels with the tunnel handover
   SkyBackdrop.tsx     Page-wide sunset gradients, sun and haze
   CloudField.tsx      Six-layer cloud field behind the content
   Reveal.tsx          Scroll-in entrance that degrades to visible
@@ -129,7 +131,7 @@ Image availability is checked at build time in `lib/media.ts`, so a production r
 - The sky is fixed and shared by every section, which keeps the sunset continuous instead of restarting per section. Sections themselves are transparent.
 - Clouds sit behind the content (`z-0`) rather than in front. The first build layered them above the cards; the blur and white haze washed out body text and contact buttons. Depth now comes from parallax, scale and blur across the six layers, and the contact card carries a cloud texture instead.
 - Project cards are transparent glass panels: a `bg-white/10` surface with a `2px` backdrop blur, a white hairline border and a soft shadow, so the sky and clouds stay visible through them. The card lifts its content `36px` on the z axis and tilts up to 7° toward the pointer; reduced motion drops the tilt. The hero paragraph stays on `.glass`, and the contact panel keeps the `.cloud-card` texture.
-- The liquid-glass lens covers the whole page rather than just the hero. Wrapping the page in the lens while keeping a single set of `[data-deck-panel]` nodes is the hard part: the magnified surface is a **client-side clone of the rendered page**, taken after mount. The clone strips ids, `data-deck-panel`, `tabindex` and ARIA references, demotes every heading to a `p`, and is `aria-hidden` plus `inert`, so the real page keeps the only outline and focus stops. Clone sync copies the deck track transform, `--deck-height`, each panel's `scrollTop`, the card tilt and the sticky header offset, so the lens follows paging and inner-panel scrolling. The clone is only built on fine-pointer devices; touch-only phones skip it. The supplied component's SVG displacement filter was dropped: in Chromium it caused the whole page to re-render through the filter region, which showed up as ghosted text and a washed-out sky. A backdrop blur on the lens caused the same kind of page-wide wash, so the glass is a tinted disc with a rim, highlight and offset shadow instead. Reduced motion renders a plain wrapper with the native cursor and no lens.
+- The liquid-glass lens covers the whole page rather than just the hero. Wrapping the page in the lens while keeping a single set of `[data-deck-panel]` nodes is the hard part: the magnified surface is a **client-side clone of the rendered page**, taken after mount. The clone strips ids, `data-deck-panel`, `tabindex` and ARIA references, demotes every heading to a `p`, and is `aria-hidden` plus `inert`, so the real page keeps the only outline and focus stops. Clone sync copies `--deck-height`, each panel's `scrollTop` and `data-deck-state`, the card tilt and the sticky header offset, so the lens follows paging, the tunnel zoom and inner-panel scrolling. The clone keeps the tunnel transition instead of the blanket `transition: none`, so the magnified view turns with the page rather than snapping to the next section. The clone is only built on fine-pointer devices; touch-only phones skip it. The supplied component's SVG displacement filter was dropped: in Chromium it caused the whole page to re-render through the filter region, which showed up as ghosted text and a washed-out sky. A backdrop blur on the lens caused the same kind of page-wide wash, so the glass is a tinted disc with a rim, highlight and offset shadow instead. Reduced motion renders a plain wrapper with the native cursor and no lens.
 - All secondary text is `ink/80`, not `ink/70`. `ink/70` measured 3.78:1 against the darkest dusk stop, below 4.5:1; `ink/80` measures at least 5.24:1 across all three sky states.
 - The mobile menu adds `bg-white/60` on top of `.glass`. The extra white keeps the menu labels above 4.5:1 contrast when the open menu sits over the sunset hero; the closed nav bar is unchanged.
 - The existing favicon is kept. No new favicon was generated.
@@ -173,13 +175,15 @@ The original handover copy was kept except for the hero: the slogan is now “Se
 
 - `npm run build` passes with TypeScript strict mode.
 - Browser console is clean in production at 1440 × 900 and 390 × 844.
-- Deck paging checked via nav links, wheel, arrow keys, `Home`/`End` and rapid scroll bursts; the track lands on exact panel offsets and stays locked during the spring.
+- Deck paging checked via nav links, wheel, arrow keys, `Home`/`End` and rapid scroll bursts; the active panel always lands at the viewport, the tunnel states swap in the right order and paging stays locked for 620 ms.
+- The tunnel was sampled at 60, 140, 240, 360, 520, 700 and 900 ms after a page step: the outgoing panel grows and fades on schedule, the incoming panel pops through after its 90 ms delay, and the real panels and the lens clone report identical transform, opacity and filter values at every sample.
+- Tunnel visuals were captured as a contact sheet with and without the lens; the two tracks stay in step, and a baseline pair with no lens in either frame showed the same ambient cloud drift, so the lens does not leak outside its clipped disc.
 - Inner panel scrolling checked at 1024 × 700 and 1280 × 720, where Selected work overflows its panel: wheel scrolls the panel first, then advances once it reaches the bottom.
 - Deep links (`#record`, `#contact`, `#projects`) open the right panel on a cold load in deck mode.
 - Focus following: focusing a contact link from the Record panel moves the deck to Contact.
 - Reduced motion at 1440 × 900 disables the deck, keeps every block visible and lands `#record` below the fixed header. Mobile at 390 × 844 also keeps native scrolling and clears the header on nav jumps.
 - Cloud layers are `pointer-events-none`; link hit-testing resolves to the real anchors.
-- Whole-page lens checked at 1440 × 900 over the hero, Selected work, Record, Contact and the nav: it magnifies the clone, follows deck paging and inner-panel scrolling, and keeps the sticky nav aligned. The clone has 0 ids, 0 `data-deck-panel` nodes and 0 headings, is `aria-hidden`/`inert`, and produces no duplicate ids. Deck paging still lands on exact panel offsets.
+- Whole-page lens checked at 1440 × 900 over the hero, Selected work, Record, Contact and the nav: it magnifies the clone, follows deck paging and inner-panel scrolling, and keeps the sticky nav aligned. The clone has 0 ids, 0 `data-deck-panel` nodes and 0 headings, is `aria-hidden`/`inert`, and produces no duplicate ids. Deck paging still lands on the right section.
 - Cloud motion checked: idle clouds drift roughly 9 px over 2.4 s, and a deck step lifts them by about 520 px.
 - Hero checked at 1440 × 900, 1280 × 800, 1024 × 700 and 390 × 844: one `h1`, the portrait sits to the right of the copy on desktop and stacks under it on mobile, and no panel overflows its viewport at the deck breakpoint.
 - The Unilinq card renders “Visit unilinq.org” and resolves to `https://unilinq.org/`.
@@ -192,4 +196,4 @@ The original handover copy was kept except for the hero: the slogan is now “Se
 - Keyboard order starts with the skip link; every focus stop has a visible accent outline and at least a 44 × 44 px target.
 - Resume, mailto and external link targets match the brief.
 - All page copy was checked against Section 3 of the handover.
-- Lighthouse has not been re-run since the whole-page lens, the deck and the glass project cards landed. Run it before launch; the lens clones the page after mount, so watch Total Blocking Time and memory on low-end laptops.
+- Lighthouse on the production build scores Accessibility 100, Best Practices 100 and SEO 100, with no failing audits. That audit does not produce a performance score; before launch, still profile Total Blocking Time and memory on a low-end laptop because the lens clones the page after mount and the tunnel blurs full-viewport layers.

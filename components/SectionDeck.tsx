@@ -2,12 +2,11 @@
 
 import { Children, useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { motion } from "framer-motion";
 import { useDeck } from "@/components/DeckProvider";
 
 /**
- * Vertical stack of full-viewport panels. In deck mode the stack is translated
- * one panel at a time; otherwise it is a normal, scrolling document.
+ * Full-viewport section stack. In deck mode the panels overlap and hand over
+ * with the tunnel transition; otherwise they stack in normal document flow.
  */
 export default function SectionDeck({ children }: { children: ReactNode }) {
   const deck = useDeck();
@@ -24,7 +23,7 @@ export default function SectionDeck({ children }: { children: ReactNode }) {
 
   const active = deck?.deck ?? false;
   const index = deck?.index ?? 0;
-  // The panel height and the translation must be the same number. Using a
+  // The panel height and the viewport height must be the same number. Using a
   // pixel variable here keeps them in step even where 100svh differs from
   // window.innerHeight (for example Safari with a dynamic toolbar).
   const sizing = active && height
@@ -33,18 +32,26 @@ export default function SectionDeck({ children }: { children: ReactNode }) {
 
   return (
     <div className="deck-viewport" style={sizing}>
-      <motion.div
-        className="deck-track"
-        animate={{ y: active ? -index * height : 0 }}
-        transition={{ type: "spring", stiffness: 118, damping: 24, mass: 0.9 }}
-        style={active ? { willChange: "transform" } : undefined}
-      >
+      <div className="deck-track">
         {Children.toArray(children).map((child, position) => (
-          <div key={position} data-deck-panel="" className="deck-panel">
-            {child}
+          <div
+            key={position}
+            data-deck-panel=""
+            data-deck-state={
+              active
+                ? position === index
+                  ? "active"
+                  : position < index
+                    ? "before"
+                    : "after"
+                : undefined
+            }
+            className="deck-panel"
+          >
+            <div className="tunnel-panel">{child}</div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
