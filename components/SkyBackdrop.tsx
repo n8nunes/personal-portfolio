@@ -65,7 +65,7 @@ export default function SkyBackdrop() {
 
       <motion.div
         style={reduceMotion ? undefined : { y: hazeY }}
-        className="absolute inset-x-0 bottom-0 h-[55%] bg-[radial-gradient(ellipse_at_bottom,rgba(255,224,194,0.9)_0%,rgba(255,224,194,0)_72%)]"
+        className="absolute inset-x-0 -bottom-48 h-[calc(55%+12rem)] bg-[radial-gradient(ellipse_at_bottom,rgba(255,224,194,0.9)_0%,rgba(255,224,194,0)_72%)]"
       />
 
       <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(to_bottom,rgba(143,195,239,0.55),rgba(143,195,239,0))]" />

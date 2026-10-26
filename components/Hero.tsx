@@ -9,7 +9,7 @@ export default function Hero() {
       aria-labelledby="hero-heading"
       className="relative isolate flex min-h-[100svh] items-center overflow-hidden"
     >
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-6 pb-20 pt-28 md:grid-cols-[minmax(0,1fr)_17rem] lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 xl:pb-24 xl:pt-32">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-8 px-6 pb-14 pt-24 md:grid-cols-[minmax(0,1fr)_17rem] md:gap-10 md:pb-16 md:pt-28 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 lg:pb-20 lg:pt-32">
         <div>
           <h1
             id="hero-heading"
