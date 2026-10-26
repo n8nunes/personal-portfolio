@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.4);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(19, 32, 58, 0.12);
+  }
+
+  /* A card whose surface is an opaque cloud photograph. The white veil keeps
+     ink text crisp without hiding the texture underneath. */
+  .cloud-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    background-color: #eaf3fb;
+    background-image:
+      linear-gradient(
+        168deg,
+        rgba(255, 255, 255, 0.68) 0%,
+        rgba(255, 255, 255, 0.58) 48%,
+        rgba(255, 255, 255, 0.74) 100%
+      ),
+      var(--card-texture);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow:
+      0 32px 64px -34px rgba(19, 32, 58, 0.5),
+      0 4px 14px rgba(19, 32, 58, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.rise {
+  animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.rise-2 {
+  animation-delay: 120ms;
+}
+
+.rise-3 {
+  animation-delay: 240ms;
+}
+
+/* Scroll-in entrance. Elements stay visible until Reveal arms them after
+   mount, so no-script and reduced-motion visitors always see the content. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  will-change: opacity, transform;
+}
+
+.reveal--in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 850ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms),
+    transform 850ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal--done {
+  will-change: auto;
+}
+
+/* Every section is a full screen in deck mode, and at least a screen tall when
+   the page scrolls normally. */
+.section-shell {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  justify-content: center;
+  padding: 7rem 1.5rem 4rem;
+}
+
+.section-inner {
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .section-shell {
+    padding: 8rem 2rem 5rem;
+  }
+}
+
+/* The magnified clone is a visual snapshot. CSS animations restart when it is
+   inserted, so pin every block to its finished state and keep the deck's own
+   inline transform as the only motion. */
+.lens-copy *,
+.lens-copy *::before,
+.lens-copy *::after {
+  animation: none !important;
+  transition: none !important;
+  /* The copy is a flat snapshot. Backdrop filters in it would sample the lens
+     surface instead of the page, and some browsers then composite the card
+     contents behind the tint. */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.lens-copy .reveal,
+.lens-copy .reveal--in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Section deck: on large screens one section fills the viewport and the stack
+   is translated a panel at a time. Below that, the same markup scrolls. */
+html[data-deck="true"] body {
+  overflow: hidden;
+}
+
+html[data-deck="true"] .deck-viewport {
+  height: var(--deck-height, 100svh);
+  overflow: hidden;
+}
+
+html[data-deck="true"] .deck-panel {
+  height: var(--deck-height, 100svh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+html[data-deck="true"] .deck-panel::-webkit-scrollbar {
+  width: 0;
+}
+
+/* In deck mode the panel itself carries the motion, so section content stays
+   fully opaque while it slides; the fade-in is only for scrolling documents. */
+html[data-deck="true"] .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fixed nav clears anchored sections in normal-scroll mode. */
+[id] {
+  scroll-margin-top: 7rem;
+}
+
+:focus-visible {
+  outline: 2px solid #4338ca;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .rise,
+  .rise-2,
+  .rise-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .reveal,
+  .reveal--in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
