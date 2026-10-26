@@ -15,7 +15,7 @@ export type Project = {
 export type TimelineEntry = {
   title: string;
   dates: string;
-  body: string;
+  body?: string;
 };
 
 export type Certification = {
@@ -40,7 +40,7 @@ export const hero = {
   headline: "Securing the cloud, minus the fog.",
   paragraphs: [
     "I build cloud systems and the security tooling around them, from least-privilege AWS infrastructure to GRC automation that maps controls across NIST CSF, ISO 27001 and Essential Eight.",
-    "I'm a software engineering student at Monash, graduating in 2027. Before that I spent four years in regulated manufacturing, where good systems were the ones with evidence and accountability built in.",
+    "I'm currently building UniLinq and studying software engineering at Monash, graduating in 2027. Before that I spent four years in regulated manufacturing, where good systems were the ones with evidence and accountability built in.",
   ],
   primaryCta: {
     label: "See the projects",
@@ -104,7 +104,6 @@ export const record = {
     {
       title: "Bachelor of Software Engineering (Honours), Monash University",
       dates: "Expected 2027",
-      body: "Specialising in cybersecurity and governance, risk and compliance.",
     },
   ] satisfies TimelineEntry[],
   certifications: [

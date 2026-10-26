@@ -15,7 +15,9 @@ export function Timeline({ entries }: TimelineProps) {
           />
           <h3 className="text-lg font-medium text-ink">{entry.title}</h3>
           <p className="mt-1 text-sm leading-[1.5] text-ink/80">{entry.dates}</p>
-          <p className="mt-2 leading-relaxed text-ink/80">{entry.body}</p>
+          {entry.body ? (
+            <p className="mt-2 leading-relaxed text-ink/80">{entry.body}</p>
+          ) : null}
         </li>
       ))}
     </ol>
